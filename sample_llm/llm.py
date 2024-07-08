@@ -23,34 +23,36 @@ labels = torch.tensor(labels)
 W = torch.randn((27,27), requires_grad=True)
 # print(inputs[23])
 # Optimize
-for k in range(50):
+loss = 0
+for k in range(500):
 	# Optimize: generate some output
 	inputs_enc = F.one_hot(inputs, num_classes=27).float()
 	inputs_nums = inputs_enc @ W
 	input_counts = inputs_nums.exp()
 	input_probs = input_counts / input_counts.sum(1, keepdims=True)
 	loss = -input_probs[torch.arange(num_inputs), labels].log().mean() + + 0.01*(W**2).mean()
-	print(loss.item())
+	# print("Loss: ", loss.item())
 	# Optimize: back
 	W.grad = None
 	loss.backward()
 	# Optimize: adjust underlying weights
 	W.data += -10 * W.grad
+print("Final loss: ", loss)
 
 # Generate new names
-for i in range(5):
+for i in range(10):
 	input_idx = 0
 	gen_name = []
 
 	while True:
-		inpt_enc = F.one_hot(torch.tensor([input_idx]), num_classes=27).float()
-		logits = inpt_enc @ W
+		input_enc = F.one_hot(torch.tensor([input_idx]), num_classes=27).float()
+		logits = input_enc @ W
 		counts = logits.exp()
 		p = counts / counts.sum(1, keepdims=True)
 
-		inpt_idx = torch.multinomial(p, num_samples=1, replacement=True).item()
-		gen_name.append(index_to_string[inpt_idx])
-		if inpt_idx==0:
+		input_idx = torch.multinomial(p, num_samples=1, replacement=True).item()
+		gen_name.append(index_to_string[input_idx])
+		if input_idx == 0:
 			break
 	print(''.join(gen_name))
 
