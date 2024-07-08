@@ -17,13 +17,11 @@ for name in names:
 		labels.append(label_index)
 inputs = torch.tensor(inputs)
 num_inputs = inputs.nelement()
-print(num_inputs)
 labels = torch.tensor(labels)
 
 # Build initial 'random' weights matrix
-g = torch.Generator().manual_seed(2147483647)
-W = torch.randn((27,27), generator=g, requires_grad=True)
-print(inputs[23])
+W = torch.randn((27,27), requires_grad=True)
+# print(inputs[23])
 # Optimize
 for k in range(50):
 	# Optimize: generate some output
@@ -31,7 +29,6 @@ for k in range(50):
 	inputs_nums = inputs_enc @ W
 	input_counts = inputs_nums.exp()
 	input_probs = input_counts / input_counts.sum(1, keepdims=True)
-	print('First row of probabilities', input_probs[0])
 	loss = -input_probs[torch.arange(num_inputs), labels].log().mean() + + 0.01*(W**2).mean()
 	print(loss.item())
 	# Optimize: back
@@ -39,7 +36,6 @@ for k in range(50):
 	loss.backward()
 	# Optimize: adjust underlying weights
 	W.data += -10 * W.grad
-	print(W.exp()[0])
 
 # Generate new names
 for i in range(5):
