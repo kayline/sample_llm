@@ -24,7 +24,7 @@ W = torch.randn((27,27), requires_grad=True)
 # print(inputs[23])
 # Optimize
 loss = 0
-for k in range(500):
+for k in range(100):
 	# Optimize: generate some output
 	inputs_enc = F.one_hot(inputs, num_classes=27).float()
 	inputs_nums = inputs_enc @ W
@@ -37,7 +37,7 @@ for k in range(500):
 	loss.backward()
 	# Optimize: adjust underlying weights
 	W.data += -10 * W.grad
-print("Final loss: ", loss)
+print("Final loss: ", loss.item())
 
 # Generate new names
 for i in range(10):
