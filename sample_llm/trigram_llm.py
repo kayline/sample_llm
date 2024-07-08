@@ -36,44 +36,40 @@ num_labels2 = labels2.nelement()
 # print(num_inputs2)
 # print(num_labels2)
 
-# First layer
 # Build initial 'random' weights matrix
 W1 = torch.randn((27,27), requires_grad=True)
+W2 = torch.randn((27,27), requires_grad=True)
 loss1 = 0
+loss2 = 0
 # Optimize
 for j in range(100):
 	# Optimize: generate some output
+	# First pair set
 	inputs1_enc = F.one_hot(inputs1, num_classes=27).float()
 	inputs1_nums = inputs1_enc @ W1
 	inputs1_counts = inputs1_nums.exp()
 	inputs1_probs = inputs1_counts / inputs1_counts.sum(1, keepdims=True)
 	loss1 = -inputs1_probs[torch.arange(num_inputs1), labels1].log().mean() + + 0.01*(W1**2).mean()
-	# print("Loss 1", loss1.item())
-	# Optimize: back
-	W1.grad = None
-	loss1.backward()
-	# Optimize: adjust underlying weights
-	W1.data += -10 * W1.grad
-print("Final loss 1: ", loss1.item())
-
-# Second layer
-# Build initial 'random' weights matrix
-W2 = torch.randn((27,27), requires_grad=True)
-loss2 = 0
-# Optimize
-for k in range(100):
-	# Optimize: generate some output
+	# Second pair set
 	inputs2_enc = F.one_hot(inputs2, num_classes=27).float()
 	inputs2_nums = inputs2_enc @ W2
 	inputs2_counts = inputs2_nums.exp()
 	inputs2_probs = inputs2_counts / inputs2_counts.sum(1, keepdims=True)
 	loss2 = -inputs2_probs[torch.arange(num_inputs2), labels2].log().mean() + + 0.01*(W2**2).mean()
+
+	# print("Loss 1", loss1.item())
 	# print("Loss 2: ",loss2.item())
+
 	# Optimize: back
+	W1.grad = None
 	W2.grad = None
+
+	loss1.backward()
 	loss2.backward()
 	# Optimize: adjust underlying weights
 	W2.data += -10 * W2.grad
+	W1.data += -10 * W1.grad
+print("Final loss 1: ", loss1.item())
 print("Final loss 2: ", loss2.item())	
 
 # Generate new names
